@@ -1,4 +1,4 @@
-package net.explorviz.extension.dummy.resources;
+package net.explorviz.extension.modeleditor.resources;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -6,8 +6,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import de.svenjacobs.loremipsum.LoremIpsum;
-import net.explorviz.extension.dummy.model.DummyModel;
-import net.explorviz.extension.dummy.model.SubDummyModel;
+import net.explorviz.extension.modeleditor.model.DummyModel;
+import net.explorviz.extension.modeleditor.model.SubDummyModel;
 
 // @Secured
 // Add the "Secured" annotation to enable authentication

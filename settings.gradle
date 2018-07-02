@@ -1,4 +1,4 @@
-rootProject.name = 'explorviz-backend-extension-dummy'
+rootProject.name = 'explorviz-backend-extension-modeleditor'
 
 // local linking (explorviz backend project)
 //include ':explorviz-backend'

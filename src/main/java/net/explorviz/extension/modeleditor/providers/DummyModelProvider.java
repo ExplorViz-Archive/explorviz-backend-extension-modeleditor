@@ -1,4 +1,4 @@
-package net.explorviz.extension.dummy.providers;
+package net.explorviz.extension.modeleditor.providers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
-import net.explorviz.extension.dummy.model.DummyModel;
+import net.explorviz.extension.modeleditor.model.DummyModel;
 
 public class DummyModelProvider implements MessageBodyReader<DummyModel>, MessageBodyWriter<DummyModel> {
 

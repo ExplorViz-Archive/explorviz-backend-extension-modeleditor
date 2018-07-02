@@ -1,4 +1,4 @@
-package net.explorviz.extension.dummy.main;
+package net.explorviz.extension.modeleditor.main;
 
 import java.io.IOException;
 
