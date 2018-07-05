@@ -9,6 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -27,13 +31,13 @@ import org.slf4j.LoggerFactory;
 import net.explorviz.api.ExtensionAPI;
 import net.explorviz.api.ExtensionAPIImpl;
 import net.explorviz.model.landscape.Landscape;
+import net.explorviz.model.store.Timestamp;
 import net.explorviz.server.helper.FileSystemHelper;
 import net.explorviz.server.resources.LandscapeResource;
-import net.explorviz.server.security.Secured;
 // @Secured
 // Add the "Secured" annotation to enable authentication
 
-@Secured
+//@Secured
 @Path("landscape")
 public class ModelLandscapeResource {
 
@@ -42,6 +46,7 @@ public class ModelLandscapeResource {
 
 	private static final String MODEL_REPOSITORY = "modellRepository";
 	private static final String MODEL_REPLAY_REPOSITORY = "modellReplayRepository";
+	private static Map<String, Timestamp> timestampCache = new HashMap<String, Timestamp>();
 
 	@PATCH
 	@Consumes("application/vnd.api+json")
@@ -134,5 +139,52 @@ public class ModelLandscapeResource {
 
 		}
 
+	}
+
+	@Produces("application/vnd.api+json")
+	@GET
+	@Path("/fill-dropdown")
+	public List<Timestamp> getUploadedTimestamps() {
+		final File directory = new File(
+				FileSystemHelper.getExplorVizDirectory() + File.separator + MODEL_REPLAY_REPOSITORY);
+		final File[] fList = directory.listFiles();
+		final List<Timestamp> timestamps = new LinkedList<Timestamp>();
+
+		if (fList != null) {
+			for (final File f : fList) {
+				final String filename = f.getName();
+
+				if (filename.endsWith(".expl")) {
+					// first validation check -> filename
+
+					final String timestampAsString = filename.split("-")[0];
+					final String activityAsString = filename.split("-")[1].split(".expl")[0];
+
+					Timestamp possibleTimestamp = timestampCache.get(timestampAsString + activityAsString);
+
+					if (possibleTimestamp == null) {
+
+						// new timestamp -> add to cache
+						// and initialize ID of entity
+						long timestamp;
+						long activity;
+
+						try {
+							timestamp = Long.parseLong(timestampAsString);
+							activity = Long.parseLong(activityAsString);
+						} catch (final NumberFormatException e) {
+							continue;
+						}
+
+						possibleTimestamp = new Timestamp(timestamp, activity);
+						possibleTimestamp.initializeID();
+						timestampCache.put(timestampAsString + activityAsString, possibleTimestamp);
+					}
+
+					timestamps.add(possibleTimestamp);
+				}
+			}
+		}
+		return timestamps;
 	}
 }
