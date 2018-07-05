@@ -2,6 +2,7 @@ package net.explorviz.extension.modeleditor.main;
 
 import javax.ws.rs.ApplicationPath;
 
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import net.explorviz.api.ExtensionAPIImpl;
@@ -26,6 +27,10 @@ public class Application extends ResourceConfig {
 
 		// Enable CORS
 		register(CORSResponseFilter.class);
+
+		// https://stackoverflow.com/questions/30653012/multipart-form-data-no-injection-source-found-for-a-parameter-of-type-public-ja/30656345
+		// register for uploading landscapes
+		register(MultiPartFeature.class);
 
 		// register all providers in the given package
 		register(DummyModelProvider.class);

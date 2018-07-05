@@ -25,11 +25,10 @@ repositories {
 }
 
 
-// # Uncomment lines below to force dependency downloading (e.g. when explorviz-backend was updated)
+//# Uncomment lines below to force dependency downloading (e.g. when explorviz-backend was updated)
 //configurations.all {
 //    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 //}
-
 
 configurations {
 	provided

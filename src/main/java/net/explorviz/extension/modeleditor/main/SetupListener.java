@@ -1,5 +1,8 @@
 package net.explorviz.extension.modeleditor.main;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -7,7 +10,7 @@ import javax.servlet.annotation.WebListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.explorviz.server.main.Configuration;
+import net.explorviz.server.helper.PropertyService;
 
 @WebListener
 public class SetupListener implements ServletContextListener {
@@ -22,8 +25,15 @@ public class SetupListener implements ServletContextListener {
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *");
 
 		// Comment out or remove line to use live monitoring data
-		Configuration.dummyMode = true;
-
+		try {
+			PropertyService.setBooleanProperty("useDummyMode", true);
+		} catch (final FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
