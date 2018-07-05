@@ -4,6 +4,7 @@ apply plugin: 'war'
 apply plugin: 'pmd'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
+apply plugin: 'maven'
 
 
 buildscript {
@@ -62,6 +63,16 @@ assemble.dependsOn jar
 jar {
   baseName = project.name 
   from configurations.provided.asFileTree.files.collect { zipTree(it) }
+}
+
+install {
+  repositories {
+    mavenInstaller {
+      addFilter('explorviz-backend-extension-modeleditor') {artifact, file ->
+        artifact.name == 'explorviz-backend-extension-modeleditor'
+      }
+    }
+  }
 }
 
 
