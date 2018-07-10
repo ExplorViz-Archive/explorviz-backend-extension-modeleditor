@@ -6,7 +6,6 @@ apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'maven'
 
-
 buildscript {
     repositories {
     jcenter()
@@ -40,7 +39,6 @@ configurations {
 dependencies {
   	// Core logic
   	compile 'com.github.ExplorViz:explorviz-backend:master-SNAPSHOT'
-	
 	// local linking (explorviz backend project)
 	//compile project(':explorviz-backend')
 	//compile project(':explorviz-backend-kiekeradapter')

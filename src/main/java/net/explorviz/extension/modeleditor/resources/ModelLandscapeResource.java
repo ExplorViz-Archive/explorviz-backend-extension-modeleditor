@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -31,13 +29,13 @@ import org.slf4j.LoggerFactory;
 import net.explorviz.api.ExtensionAPI;
 import net.explorviz.api.ExtensionAPIImpl;
 import net.explorviz.model.landscape.Landscape;
-import net.explorviz.model.store.Timestamp;
 import net.explorviz.server.helper.FileSystemHelper;
 import net.explorviz.server.resources.LandscapeResource;
 // @Secured
 // Add the "Secured" annotation to enable authentication
+import net.explorviz.server.security.Secured;
 
-//@Secured
+@Secured
 @Path("landscape")
 public class ModelLandscapeResource {
 
@@ -45,8 +43,6 @@ public class ModelLandscapeResource {
 	static final Logger LOGGER = LoggerFactory.getLogger(LandscapeResource.class.getName());
 
 	private static final String MODEL_REPOSITORY = "modellRepository";
-	private static final String MODEL_REPLAY_REPOSITORY = "modellReplayRepository";
-	private static Map<String, Timestamp> timestampCache = new HashMap<String, Timestamp>();
 
 	@PATCH
 	@Consumes("application/vnd.api+json")
@@ -106,7 +102,7 @@ public class ModelLandscapeResource {
 			@FormDataParam("file") final FormDataContentDisposition fileInfo) {
 
 		final String baseFilePath = FileSystemHelper.getExplorVizDirectory() + File.separator;
-		final String replayFilePath = baseFilePath + MODEL_REPLAY_REPOSITORY + File.separator;
+		final String replayFilePath = baseFilePath + MODEL_REPOSITORY + File.separator;
 
 		new File(replayFilePath).mkdir();
 		final File objFile = new File(replayFilePath + fileInfo.getFileName());
@@ -141,14 +137,13 @@ public class ModelLandscapeResource {
 
 	}
 
-	@Produces("application/vnd.api+json")
 	@GET
+	@Produces("application/json")
 	@Path("/fill-dropdown")
-	public List<Timestamp> getUploadedTimestamps() {
-		final File directory = new File(
-				FileSystemHelper.getExplorVizDirectory() + File.separator + MODEL_REPLAY_REPOSITORY);
+	public Response getUploadedTimestamps() {
+		final File directory = new File(FileSystemHelper.getExplorVizDirectory() + File.separator + MODEL_REPOSITORY);
 		final File[] fList = directory.listFiles();
-		final List<Timestamp> timestamps = new LinkedList<Timestamp>();
+		final List<String> timestamps = new LinkedList<String>();
 
 		if (fList != null) {
 			for (final File f : fList) {
@@ -156,35 +151,36 @@ public class ModelLandscapeResource {
 
 				if (filename.endsWith(".expl")) {
 					// first validation check -> filename
+					final String timestampAsString = filename.split(".expl")[0];
 
-					final String timestampAsString = filename.split("-")[0];
-					final String activityAsString = filename.split("-")[1].split(".expl")[0];
-
-					Timestamp possibleTimestamp = timestampCache.get(timestampAsString + activityAsString);
-
-					if (possibleTimestamp == null) {
-
-						// new timestamp -> add to cache
-						// and initialize ID of entity
-						long timestamp;
-						long activity;
-
-						try {
-							timestamp = Long.parseLong(timestampAsString);
-							activity = Long.parseLong(activityAsString);
-						} catch (final NumberFormatException e) {
-							continue;
-						}
-
-						possibleTimestamp = new Timestamp(timestamp, activity);
-						possibleTimestamp.initializeID();
-						timestampCache.put(timestampAsString + activityAsString, possibleTimestamp);
-					}
-
-					timestamps.add(possibleTimestamp);
+					timestamps.add(timestampAsString);
 				}
 			}
 		}
-		return timestamps;
+		return Response.ok(timestamps, "application/json").build();
 	}
+
+	@Produces("application/vnd.api+json")
+	@GET
+	@Path("/modelLandscape/{timestamp}")
+	public Landscape getModelLandscape(@PathParam("timestamp") final long fileName) {
+		final File directory = new File(FileSystemHelper.getExplorVizDirectory() + File.separator + MODEL_REPOSITORY);
+		final File[] fList = directory.listFiles();
+		final String strLong = Long.toString(fileName);
+
+		if (fList != null) {
+			for (final File f : fList) {
+				final String filename = f.getName();
+				if (filename.endsWith(".expl") && filename.split("-")[0].equals(strLong)) {
+					// first validation check -> filename
+					return api.getLandscape(fileName, MODEL_REPOSITORY);
+				}
+			}
+		} else {
+			// error modelReplayRepository is empty
+		}
+		// error handling should throw a well produced and talkative error at this point
+		return null;
+	}
+
 }
