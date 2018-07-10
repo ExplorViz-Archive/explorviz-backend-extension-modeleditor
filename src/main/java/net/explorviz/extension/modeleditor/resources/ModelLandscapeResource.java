@@ -110,10 +110,46 @@ public class ModelLandscapeResource {
 			objFile.delete();
 
 		}
-
-		saveToFile(uploadedInputStream, replayFilePath + fileInfo.getFileName());
+		final InputStream betterInputStream = alternateIdsOfLandscape(uploadedInputStream,
+				replayFilePath + fileInfo.getFileName());
+		saveToFile(betterInputStream, replayFilePath + fileInfo.getFileName());
 
 		return Response.ok().build();
+	}
+
+	private InputStream alternateIdsOfLandscape(final InputStream uploadedInputStream,
+			final String uploadedFileLocation) {
+		// decode landscape
+		try (InputStream base64is = Base64.getDecoder().wrap(uploadedInputStream)) {
+			// build a landscape from the InputStream
+
+			// alter the IDs of the Landscape created -------OR-------- alter them while
+			// reading them
+
+			// serialize the Landscape to a OutputStream
+
+			// save the file as seen below!
+
+			// int len = 0;
+			// OutputStream out = null;
+			// final byte[] bytes = new byte[1024];
+			// out = new FileOutputStream(new File(uploadedFileLocation));
+			// while ((len = base64is.read(bytes)) != -1) {
+			// out.write(bytes, 0, len);
+			// }
+			// out.flush();
+			// out.close();
+		} catch (final IOException e1) {
+			LOGGER.error(
+					"Replay model could not be saved to modelreplay repository. Error {} occured. With stacktrace {}",
+					e1.getMessage(), e1.getStackTrace());
+
+		}
+
+		// return altered Landscape
+
+		return uploadedInputStream;
+
 	}
 
 	private void saveToFile(final InputStream uploadedInputStream, final String uploadedFileLocation) {
@@ -182,5 +218,19 @@ public class ModelLandscapeResource {
 		// error handling should throw a well produced and talkative error at this point
 		return null;
 	}
+	//
+	// @Produces("application/vnd.api+json")
+	// @PATCH
+	// @Path("/landscapes/{id}")
+	// public void updateLandscape(final Landscape landscape) {
+	// api.saveLandscape(landscape);
+	// }
+	//
+	// @Produces("application/vnd.api+json")
+	// @POST
+	// @Path("/landscapes")
+	// public void saveLandscape(final Landscape landscape) {
+	// api.saveLandscape(landscape);
+	// }
 
 }
