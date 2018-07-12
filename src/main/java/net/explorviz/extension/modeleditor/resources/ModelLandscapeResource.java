@@ -1,10 +1,8 @@
 package net.explorviz.extension.modeleditor.resources;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import net.explorviz.api.ExtensionAPI;
 import net.explorviz.api.ExtensionAPIImpl;
 import net.explorviz.model.landscape.Landscape;
+import net.explorviz.repository.RepositoryStorage;
 import net.explorviz.server.helper.FileSystemHelper;
 import net.explorviz.server.resources.LandscapeResource;
 // @Secured
@@ -60,39 +59,20 @@ public class ModelLandscapeResource {
 
 	@Produces("*/*")
 	@GET
-	@Path("/export-model/{timestamp}")
-	public Response getExportLandscape(@PathParam("timestamp") final long timestamp) throws FileNotFoundException {
+	@Path("/export-model/{fileName}")
+	public Response getExportLandscape(@PathParam("fileName") final String fileName) throws FileNotFoundException {
 
-		final File modelRepository = new File(
-				FileSystemHelper.getExplorVizDirectory() + File.separator + MODEL_REPOSITORY);
+		final String landscapeFolder = FileSystemHelper.getExplorVizDirectory() + File.separator + MODEL_REPOSITORY;
 
-		// retrieve file from landscape repository with specific timestamp
-		final File[] filesWithTimestamp = modelRepository.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(final File modelRepository, final String filename) {
-				return filename.startsWith(Long.toString(timestamp));
-			}
-		});
+		final Landscape landscapeWithNewIDs = RepositoryStorage.readFromFileGeneric(landscapeFolder,
+				fileName + ".expl");
 
-		File exportModel;
+		final byte[] landscapeAsBytes = RepositoryStorage.convertLandscapeToBytes(landscapeWithNewIDs);
 
-		if (filesWithTimestamp == null) {
-			throw new FileNotFoundException("No model found with timestamp:" + timestamp);
-		} else {
-			exportModel = new File(filesWithTimestamp[0].getAbsolutePath());
-		}
+		final String encodedLandscape = Base64.getEncoder().encodeToString(landscapeAsBytes);
 
-		String encodedModel = "";
-		// encode to Base64
-		try (FileInputStream streamedModel = new FileInputStream(exportModel)) {
-			final byte[] modelData = new byte[(int) exportModel.length()];
-			streamedModel.read(modelData);
-			encodedModel = Base64.getEncoder().encodeToString(modelData);
-		} catch (final IOException ioe) {
-			LOGGER.error("error {} in encoding landscape with timestamp {}.", ioe.getMessage(), timestamp);
-		}
 		// send encoded landscape
-		return Response.ok(encodedModel, "*/*").build();
+		return Response.ok(encodedLandscape, "*/*").build();
 	}
 
 	@Consumes("multipart/form-data")
@@ -100,6 +80,16 @@ public class ModelLandscapeResource {
 	@Path("/upload-model")
 	public Response uploadmodel(@FormDataParam("file") final InputStream uploadedInputStream,
 			@FormDataParam("file") final FormDataContentDisposition fileInfo) {
+
+		// base64 string in byte Array ohne Datei speichern
+
+		// final byte[] byteLandscape = (byte[]) uploadedInputStream;
+
+		// RepositoryStorage byteToLandscape
+		// final Landscape newAndBetterLandscape =
+		// RepositoryStorage.bytesToLandscape(byteLandscape);
+
+		// neues landscape in datei speichern
 
 		final String baseFilePath = FileSystemHelper.getExplorVizDirectory() + File.separator;
 		final String replayFilePath = baseFilePath + MODEL_REPOSITORY + File.separator;
@@ -110,46 +100,9 @@ public class ModelLandscapeResource {
 			objFile.delete();
 
 		}
-		final InputStream betterInputStream = alternateIdsOfLandscape(uploadedInputStream,
-				replayFilePath + fileInfo.getFileName());
-		saveToFile(betterInputStream, replayFilePath + fileInfo.getFileName());
+		saveToFile(uploadedInputStream, replayFilePath + fileInfo.getFileName());
 
 		return Response.ok().build();
-	}
-
-	private InputStream alternateIdsOfLandscape(final InputStream uploadedInputStream,
-			final String uploadedFileLocation) {
-		// decode landscape
-		try (InputStream base64is = Base64.getDecoder().wrap(uploadedInputStream)) {
-			// build a landscape from the InputStream
-
-			// alter the IDs of the Landscape created -------OR-------- alter them while
-			// reading them
-
-			// serialize the Landscape to a OutputStream
-
-			// save the file as seen below!
-
-			// int len = 0;
-			// OutputStream out = null;
-			// final byte[] bytes = new byte[1024];
-			// out = new FileOutputStream(new File(uploadedFileLocation));
-			// while ((len = base64is.read(bytes)) != -1) {
-			// out.write(bytes, 0, len);
-			// }
-			// out.flush();
-			// out.close();
-		} catch (final IOException e1) {
-			LOGGER.error(
-					"Replay model could not be saved to modelreplay repository. Error {} occured. With stacktrace {}",
-					e1.getMessage(), e1.getStackTrace());
-
-		}
-
-		// return altered Landscape
-
-		return uploadedInputStream;
-
 	}
 
 	private void saveToFile(final InputStream uploadedInputStream, final String uploadedFileLocation) {
@@ -218,19 +171,5 @@ public class ModelLandscapeResource {
 		// error handling should throw a well produced and talkative error at this point
 		return null;
 	}
-	//
-	// @Produces("application/vnd.api+json")
-	// @PATCH
-	// @Path("/landscapes/{id}")
-	// public void updateLandscape(final Landscape landscape) {
-	// api.saveLandscape(landscape);
-	// }
-	//
-	// @Produces("application/vnd.api+json")
-	// @POST
-	// @Path("/landscapes")
-	// public void saveLandscape(final Landscape landscape) {
-	// api.saveLandscape(landscape);
-	// }
 
 }
