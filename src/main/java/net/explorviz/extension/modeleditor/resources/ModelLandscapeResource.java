@@ -43,6 +43,10 @@ public class ModelLandscapeResource {
 
 	private static final String MODEL_REPOSITORY = "modellRepository";
 
+	public static String getModelRepository() {
+		return MODEL_REPOSITORY;
+	}
+
 	@PATCH
 	@Consumes("application/vnd.api+json")
 	@Path("/landscapes/{timestamp}")

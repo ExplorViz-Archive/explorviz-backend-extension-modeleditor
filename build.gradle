@@ -5,13 +5,16 @@ apply plugin: 'pmd'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'maven'
+apply plugin: 'com.github.johnrengelman.plugin-shadow'
+apply plugin: 'java'
 
 buildscript {
     repositories {
     jcenter()
     }
     dependencies {
-        classpath 'org.akhikhl.gretty:gretty:+'
+       classpath 'org.akhikhl.gretty:gretty:+'
+       classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     }
 }
 
@@ -26,9 +29,9 @@ repositories {
 
 
 //# Uncomment lines below to force dependency downloading (e.g. when explorviz-backend was updated)
-//configurations.all {
-//    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-//}
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
 
 configurations {
 	provided
@@ -37,6 +40,8 @@ configurations {
 
 
 dependencies {
+
+
   	// Core logic
   	compile 'com.github.ExplorViz:explorviz-backend:master-SNAPSHOT'
 	// local linking (explorviz backend project)
@@ -45,6 +50,10 @@ dependencies {
   
  	// Dependency for this subproject. Add your dependencies in the same way.
   	provided group: 'de.sven-jacobs', name: 'loremipsum', version: '1.0'
+
+
+	shadow 'junit:junit:3.8.2'
+
 
     testCompile 'junit:junit:4.12'
 }
@@ -59,6 +68,9 @@ assemble.dependsOn jar
 
 // Build .jar file with your "provided" dependencies only
 jar {
+manifest{
+	attributes 'Class-Path' : '/libs/a.jar'
+}
   baseName = project.name 
   from configurations.provided.asFileTree.files.collect { zipTree(it) }
 }
