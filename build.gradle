@@ -78,8 +78,8 @@ jar {
 install {
   repositories {
     mavenInstaller {
-      addFilter('explorviz-backend-extension-jitpack') {artifact, file ->
-        artifact.name == 'explorviz-backend-extension-jitpack'
+      addFilter('explorviz-backend-extension-modeleditor') {artifact, file ->
+        artifact.name == 'explorviz-backend-extension-modeleditor'
       }
     }
   }
