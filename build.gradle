@@ -29,9 +29,9 @@ repositories {
 
 
 //# Uncomment lines below to force dependency downloading (e.g. when explorviz-backend was updated)
-//configurations.all {
-//    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-//}
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
 
 configurations {
 	provided
@@ -59,27 +59,27 @@ dependencies {
 }
 
 
-// Don't build war when tests fail
-//war.dependsOn check
-
-
 // War plugin typically disables jar build
 assemble.dependsOn jar
 
-// Build .jar file with your "provided" dependencies only
-jar {
-manifest{
-	attributes 'Class-Path' : '/libs/a.jar'
+// https://discuss.gradle.org/t/deploying-multiple-artifacts-war-jar-sources-to-artifactory/4239
+artifacts {
+  	archives jar
+  	archives war {
+        classifier = 'deployment'
+    }
 }
-  baseName = project.name 
+
+jar {
+  baseName = project.name
   from configurations.provided.asFileTree.files.collect { zipTree(it) }
 }
 
 install {
   repositories {
     mavenInstaller {
-      addFilter('explorviz-backend-extension-modeleditor') {artifact, file ->
-        artifact.name == 'explorviz-backend-extension-modeleditor'
+      addFilter('explorviz-backend-extension-jitpack') {artifact, file ->
+        artifact.name == 'explorviz-backend-extension-jitpack'
       }
     }
   }
