@@ -134,13 +134,11 @@ public class ModelLandscapeResource {
 	@Produces("application/json")
 	@Path("/fill-dropdown")
 	public Response getUploadedTimestamps() {
-		System.out.println("die Anfrage kam sauber rein, mal sehen was passiert!");
 		final File directory = new File(FileSystemHelper.getExplorVizDirectory() + File.separator + MODEL_REPOSITORY);
 		final File[] fList = directory.listFiles();
 		final List<String> timestamps = new LinkedList<String>();
 
 		if (fList != null) {
-			System.out.println("ich habe schonmal Dateien gefunden");
 			for (final File f : fList) {
 				final String filename = f.getName();
 
@@ -152,7 +150,6 @@ public class ModelLandscapeResource {
 				}
 			}
 		}
-		System.out.println("und nun zurück ans Frontend.");
 		return Response.ok(timestamps, "application/json").build();
 	}
 
