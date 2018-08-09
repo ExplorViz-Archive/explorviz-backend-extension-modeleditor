@@ -43,7 +43,7 @@ dependencies {
 
 
   	// Core logic
-  	compile 'com.github.ExplorViz:explorviz-backend:master-SNAPSHOT'
+  	compile 'com.github.ExplorViz:explorviz-backend:thackel-SNAPSHOT'
 	// local linking (explorviz backend project)
 	//compile project(':explorviz-backend')
 	//compile project(':explorviz-backend-kiekeradapter')
