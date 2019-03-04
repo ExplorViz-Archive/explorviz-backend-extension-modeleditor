@@ -1,7 +1,7 @@
 {
       "imgUrl": "img/vr.png",
       "requiredExtensions": [
-        "backend",
+        "backend"
       ],
-      "incompatibleExtensions": [],
+      "incompatibleExtensions": []
 }
