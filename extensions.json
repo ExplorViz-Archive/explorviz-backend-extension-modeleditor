@@ -1,7 +1,7 @@
 {
       "imgSrc": "model-editor_2.svg",
       "requiredExtensions": [
-        "backend"
+        "backend_master"
       ],
       "incompatibleExtensions": []
 }
